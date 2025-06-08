@@ -3,7 +3,7 @@ local RextFramework = require(game.ReplicatedStorage.Source.Modules.Framework.Re
 -- #endregion
 
 local modulesToLoad = {
-	table.unpack(game.Players.LocalPlayer.PlayerScripts.Source.Modules.Controllers:GetDescendants())
+	table.unpack(game.ServerScriptService.Source.Modules.Services:GetDescendants())
 }
 
 local componentsToLoad = {

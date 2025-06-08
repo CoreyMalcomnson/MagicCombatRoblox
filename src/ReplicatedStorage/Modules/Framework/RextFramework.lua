@@ -29,7 +29,7 @@ function RextFramework:Start(modulesToLoad, modulePredicate, componentsToLoad, c
 
         for name, module in pairs(self._loadedModules) do
             if module.Start then
-                print(name.." ".." awake")
+                print(name.." ".." start")
                 module:Start()
             end
         end
