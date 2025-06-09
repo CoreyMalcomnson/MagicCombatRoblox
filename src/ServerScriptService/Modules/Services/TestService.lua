@@ -36,4 +36,16 @@ function TestService:OnPlayerRemoving(player: Player)
     print("Player leaving: "..player.Name)
 end
 
+function TestService:OnHeartbeat(deltaTime: number)
+    print("a "..deltaTime)
+end
+
+function TestService:OnStepped(deltaTime: number)
+    print("b "..deltaTime)
+end
+
+function TestService:OnRenderStepped(deltaTime: number)
+    print("c "..deltaTime)
+end
+
 return TestService
