@@ -32,12 +32,19 @@ export type queryProperties<RequestType, ResponseType> = {
 	}?
 }
 
--- Used internally for
+-- Used internally for packet & query request/response queues 
 export type channelData = {
 	cursor: number,
 	size: number,
 	references: { unknown },
 	buff: buffer,
+}
+
+export type remoteFunctionChannel = {
+	ready: boolean, 
+	response: any?, 
+	data: channelData,
+	id: number
 }
 
 -- Used internally for serializing and deserializing all data types
@@ -55,19 +62,23 @@ type Packet<T> = {
 	wait: () -> T,
 	send: (data: T, target: Player?) -> (),
 	listen: (callback: (data: T, player: Player?) -> ()) -> (),
+	listenOnce: (callback: (data: T, player: Player?) -> ()) -> (),
+	disconnectAll: () -> ()
 }
 
 -- used as return result in defineQuery
 type Query<RequestType, ResponseType> = {
 	invoke: (request: RequestType, target: Player?) -> ResponseType,
-	listen: (callback: (request: RequestType, player: Player?) -> ResponseType) -> ()
+	listen: (callback: (request: RequestType, player: Player?) -> ResponseType) -> (),
+	listenOnce: (callback: (request: RequestType, player: Player?) -> ResponseType) -> (),
+	disconnectAll: () -> ()
 }
 
 -- Library type
 export type ByteNet = {
 	definePacket: <T>(props: packetProps<T>) -> Packet<T>,
 	defineQuery: <RequestType, ResponseType>(properties: queryProperties<RequestType, ResponseType>) -> Query<RequestType, ResponseType>,
-	defineNamespace: <T>(name: string, namespace: () -> T) -> T,
+	defineNamespace: <T>(name: string, namespace: () -> namespaceData & T) -> T,
 
 	struct: <T>(format: T) -> T,
 	bool: boolean,
@@ -88,9 +99,10 @@ export type ByteNet = {
 	vec3: Vector3,
 	vec2: Vector2,
 	buff: buffer,
+	color3: Color3,
 	cframe: CFrame,
 	map: <K, V>(key: K, value: V) -> { [K]: V },
-	
+
 	-- TYPES
 	playerIdentifier: number,
 	playerName: string,
