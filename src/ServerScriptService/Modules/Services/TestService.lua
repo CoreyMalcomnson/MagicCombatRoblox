@@ -23,4 +23,17 @@ function TestService:Start()
     end)
 end
 
+function TestService:OnPlayerAdded(player: Player)
+    print("Player joined: "..player.Name)
+end
+
+function TestService:OnPlayerCharacterAdded(player: Player, character: Model)
+    print("Player joined: "..player.Name)
+    print("Player character join. "..character:GetFullName())
+end
+
+function TestService:OnPlayerRemoving(player: Player)
+    print("Player leaving: "..player.Name)
+end
+
 return TestService

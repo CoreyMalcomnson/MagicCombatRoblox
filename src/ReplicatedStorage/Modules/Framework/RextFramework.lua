@@ -45,25 +45,30 @@ function RextFramework:_loadModules(modulesToLoad, modulePredicate)
     end
 end
 
-function RextFramework:_setupAdditionalModuleCallbacks()
-    local function notifyModules(functionName, ...)
-        for moduleName, module in pairs(RextFramework._loadedModules) do
-            local fn = module[functionName]
-            if typeof(fn) == "function" then
-                local ok, err = pcall(fn, ...)
-                if not ok then
-                    warn("[RextFramework] Module error in " .. moduleName .. "/" .. functionName .. ": " .. tostring(err))
-                end
+function RextFramework:_notifyModules(functionName, ...)
+    for moduleName, module in pairs(RextFramework._loadedModules) do
+        local fn = module[functionName]
+        if typeof(fn) == "function" then
+            local ok, err = pcall(fn, module, ...)
+            if not ok then
+                warn("[RextFramework] Module error in " .. moduleName .. "/" .. functionName .. ": " .. tostring(err))
             end
         end
     end
+end
 
+function RextFramework:_setupAdditionalModuleCallbacks()
+    self:_setupPlayerModuleCallbacks()
+    self:_setupRunModuleCallbacks()
+end
+
+function RextFramework:_setupPlayerModuleCallbacks()
     local function onPlayerCharacterAdded(player: Player, character: Model)
-        notifyModules("OnPlayerCharacterAdded", player, character)
+        RextFramework:_notifyModules("OnPlayerCharacterAdded", player, character)
     end
 
     local function onPlayerAdded(player: Player)
-        notifyModules("OnPlayerAdded", player)
+        RextFramework:_notifyModules("OnPlayerAdded", player)
 
         -- Init
         if player.Character then
@@ -78,7 +83,7 @@ function RextFramework:_setupAdditionalModuleCallbacks()
     end
 
     local function onPlayerRemoving(player: Player)
-        notifyModules("OnPlayerRemoving", player)
+        RextFramework:_notifyModules("OnPlayerRemoving", player)
         
         -- Cleanup
         if RextFramework._troves[player] then
@@ -95,6 +100,22 @@ function RextFramework:_setupAdditionalModuleCallbacks()
     -- Listen
     Players.PlayerAdded:Connect(onPlayerAdded)
     Players.PlayerRemoving:Connect(onPlayerRemoving)
+end
+
+function RextFramework:_setupRunModuleCallbacks()
+    RunService.Heartbeat:Connect(function(deltaTime: number)
+        RextFramework:_notifyModules("OnHeartbeat", deltaTime)
+    end)
+
+    if RunService:IsClient() then
+        RunService.RenderStepped:Connect(function(deltaTime: number)
+            RextFramework:_notifyModules("OnRenderStepped", deltaTime)
+        end)    
+    end
+
+    RunService.Stepped:Connect(function(deltaTime: number)
+        RextFramework:_notifyModules("OnStepped", deltaTime)
+    end)    
 end
 
 function RextFramework:_loadComponents(componentsToLoad, componentPredicate)
