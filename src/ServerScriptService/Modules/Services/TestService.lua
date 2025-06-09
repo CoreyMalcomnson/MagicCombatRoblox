@@ -1,51 +1,53 @@
-local Network = require(game.ReplicatedStorage.Source.Modules.Networking.Network)
+local Remote = require(game.ReplicatedStorage.Source.Modules.Framework.Remote)
 
 local TestService = {}
 
+TestService.NotifyRemote = Remote.new("Notify")
+TestService.GetPlayerDataRemote = Remote.new("GetPlayerData")
+
 function TestService:Awake()
     print("Hello")
+
+    TestService.NotifyRemote:OnServerEvent(function(player, message)
+
+    end)
 end
 
 function TestService:Start()
     print("Dood")
 
-    Network.packets.Notify.listen(function(data: { important: boolean, message: string }, player: Player?) 
-        print("Message received from "..(player and player.Name or "?")..": "..(data.message or "?"))
+    TestService.NotifyRemote:OnServerEvent(function(player)
+        print(player.Name.." Notified server")
     end)
 
-    Network.queries.GetPlayerData.listen(function(request: { playerId: number }, player: Player?): { level: number, xp: number }  
-        print("Returning data for id: "..request.playerId)
-        
-        return {
-            level = 1,
-            xp = 1
-        }
+    TestService.GetPlayerDataRemote:OnServerInvoke(function(player)
+        return {level = 1, exp = 1}
     end)
 end
 
-function TestService:OnPlayerAdded(player: Player)
-    print("Player joined: "..player.Name)
-end
+-- function TestService:OnPlayerAdded(player: Player)
+--     print("Player joined: "..player.Name)
+-- end
 
-function TestService:OnPlayerCharacterAdded(player: Player, character: Model)
-    print("Player joined: "..player.Name)
-    print("Player character join. "..character:GetFullName())
-end
+-- function TestService:OnPlayerCharacterAdded(player: Player, character: Model)
+--     print("Player joined: "..player.Name)
+--     print("Player character join. "..character:GetFullName())
+-- end
 
-function TestService:OnPlayerRemoving(player: Player)
-    print("Player leaving: "..player.Name)
-end
+-- function TestService:OnPlayerRemoving(player: Player)
+--     print("Player leaving: "..player.Name)
+-- end
 
-function TestService:OnHeartbeat(deltaTime: number)
-    print("a "..deltaTime)
-end
+-- function TestService:OnHeartbeat(deltaTime: number)
+--     print("a "..deltaTime)
+-- end
 
-function TestService:OnStepped(deltaTime: number)
-    print("b "..deltaTime)
-end
+-- function TestService:OnStepped(deltaTime: number)
+--     print("b "..deltaTime)
+-- end
 
-function TestService:OnRenderStepped(deltaTime: number)
-    print("c "..deltaTime)
-end
+-- function TestService:OnRenderStepped(deltaTime: number)
+--     print("c "..deltaTime)
+-- end
 
 return TestService
