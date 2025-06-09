@@ -15,6 +15,8 @@ function RextFramework:Start(modulesToLoad, modulePredicate, componentsToLoad, c
         self:_loadModules(modulesToLoad, modulePredicate)
         self:_setupAdditionalModuleCallbacks()
         self:_loadComponents(componentsToLoad, componentPredicate)
+
+        resolve()
     end)
 end
 
