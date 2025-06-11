@@ -1,8 +1,8 @@
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
-local Promise = require(game.ReplicatedStorage.Source.Modules.Packages.Promise)
-local Trove = require(game.ReplicatedStorage.Source.Modules.Packages.Trove)
+local Promise = require(game.ReplicatedStorage.Source.Packages.Promise)
+local Trove = require(game.ReplicatedStorage.Source.Packages.Trove)
 
 local RextFramework = {}
 
@@ -65,6 +65,29 @@ end
 function RextFramework:_setupPlayerModuleCallbacks()
     local function onPlayerCharacterAdded(player: Player, character: Model)
         RextFramework:_notifyModules("OnPlayerCharacterAdded", player, character)
+
+        -- Humanoid died watching
+        local humanoid = character:FindFirstChild("Humanoid") or character:WaitForChild("Humanoid", 5) or nil
+        if not humanoid then 
+            warn("Couldn't get humanoid _setupPlayerModuleCallbacks/onPlayerCharacterAdded")
+            return
+        end
+
+        if RextFramework._troves[player.UserId.."Char"] then
+            RextFramework._troves[player.UserId.."Char"]:Destroy()
+            RextFramework._troves[player.UserId.."Char"] = nil
+        end
+        
+        RextFramework._troves[player.UserId.."Char"] = Trove.new()
+        RextFramework._troves[player.UserId.."Char"]:Add(humanoid.Died:Connect(function()
+            RextFramework:_notifyModules("OnPlayerCharacterDied", player)
+
+            if RextFramework._troves[player.UserId.."Char"] then
+                RextFramework._troves[player.UserId.."Char"]:Destroy()
+                RextFramework._troves[player.UserId.."Char"] = nil
+            end
+        end))
+        
     end
 
     local function onPlayerAdded(player: Player)
@@ -76,8 +99,8 @@ function RextFramework:_setupPlayerModuleCallbacks()
         end
 
         -- Listen
-        RextFramework._troves[player] = Trove.new()
-        RextFramework._troves[player]:Add(player.CharacterAdded:Connect(function(character: Model)
+        RextFramework._troves[player.UserId] = Trove.new()
+        RextFramework._troves[player.UserId]:Add(player.CharacterAdded:Connect(function(character: Model)
             task.defer(onPlayerCharacterAdded, player, character)
         end))
     end
@@ -86,9 +109,14 @@ function RextFramework:_setupPlayerModuleCallbacks()
         RextFramework:_notifyModules("OnPlayerRemoving", player)
         
         -- Cleanup
-        if RextFramework._troves[player] then
-            RextFramework._troves[player]:Destroy()
-            RextFramework._troves[player] = nil
+        if RextFramework._troves[player.UserId] then
+            RextFramework._troves[player.UserId]:Destroy()
+            RextFramework._troves[player.UserId] = nil
+        end
+
+        if RextFramework._troves[player.UserId.."Char"] then
+            RextFramework._troves[player.UserId.."Char"]:Destroy()
+            RextFramework._troves[player.UserId.."Char"] = nil
         end
     end
 

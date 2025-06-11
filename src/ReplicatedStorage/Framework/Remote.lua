@@ -1,7 +1,7 @@
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Trove = require(ReplicatedStorage.Source.Modules.Packages.Trove)
+local Trove = require(ReplicatedStorage.Source.Packages.Trove)
 
 local isClient = RunService:IsClient()
 local isServer = RunService:IsServer()

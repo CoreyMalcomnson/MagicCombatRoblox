@@ -1,4 +1,4 @@
-local Component = require(game.ReplicatedStorage.Source.Modules.Packages.Component)
+local Component = require(game.ReplicatedStorage.Source.Packages.Component)
 
 local TestComponent = Component.new({Tag = "Test"})
 

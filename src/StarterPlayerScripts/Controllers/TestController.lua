@@ -1,20 +1,23 @@
-local Remote = require(game.ReplicatedStorage.Source.Modules.Framework.Remote)
+local UserInputService = game:GetService("UserInputService")
+
+local Remote = require(game.ReplicatedStorage.Source.Framework.Remote)
 
 local TestController = {}
 
-TestController.NotifyRemote = Remote.get("Notify")
-TestController.GetPlayerDataRemote = Remote.get("GetPlayerData")
+TestController.ToggleWeapon = Remote.get("WeaponEquipService/ToggleWeapon")
 
-function TestController:Awake()
-    print("Hello")
-end
+-- function TestController:Awake()
+--     print("Hello")
+-- end
 
 function TestController:Start()
-    print("Dood")
+    UserInputService.InputBegan:Connect(function(inputObject, processed)
+        if processed then return end
 
-    TestController.NotifyRemote:FireServer()
-    local data = TestController.GetPlayerDataRemote:InvokeServer()
-    print(data)
+        if inputObject.KeyCode == Enum.KeyCode.One then
+           TestController.ToggleWeapon:FireServer() 
+        end
+    end)
 end
 
 -- function TestController:OnPlayerAdded(player: Player)
